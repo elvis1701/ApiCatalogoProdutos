@@ -13,6 +13,9 @@ namespace ApiCatalogoProdutos.Context
             : base(options)
         {   }
 
+        public AppDbContext()
+        { }
+
         public DbSet<Categoria> Categorias { get; set; }
 
         public DbSet<Produto> Produtos { get; set; }
