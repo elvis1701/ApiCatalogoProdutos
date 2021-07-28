@@ -38,7 +38,7 @@ namespace ApiCatalogoProdutos.Controllers
         }
 
         // GET: api/Produtos/5
-        [HttpGet("{id}")]
+        [HttpGet("{id:int:min(1)}")]
         public async Task<ActionResult<Produto>> GetProduto(int id)
         {
             try
