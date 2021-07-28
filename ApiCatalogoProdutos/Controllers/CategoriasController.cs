@@ -21,6 +21,12 @@ namespace ApiCatalogoProdutos.Controllers
             _context = context;
         }
 
+        [HttpGet("produtos")]
+        public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriasProdutos()
+        {
+            return await _context.Categorias.Include(x=> x.Produtos).ToListAsync();
+        }
+
         // GET: api/Categorias
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Categoria>>> GetCategorias()
