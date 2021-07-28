@@ -25,52 +25,39 @@ namespace ApiCatalogoProdutos.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Produto>>> GetProdutos()
         {
-            return await _context.Produtos.ToListAsync();
+            try
+            {
+                return await _context.Produtos.ToListAsync();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Erro ao tentar obter os produtos do banco de dados");
+            }
+            
         }
 
         // GET: api/Produtos/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Produto>> GetProduto(int id)
         {
-            var produto = await _context.Produtos.FindAsync(id);
-
-            if (produto == null)
-            {
-                return NotFound();
-            }
-
-            return produto;
-        }
-
-        // PUT: api/Produtos/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduto(int id, Produto produto)
-        {
-            if (id != produto.ProdutoId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(produto).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProdutoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                var produto = await _context.Produtos.FindAsync(id);
 
-            return NoContent();
+                if (produto == null)
+                {
+                    return NotFound($"O produto com id={id} não foi encontrado");
+                }
+
+                return produto;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Erro ao tentar obter os produtos do banco de dados");
+            }
+            
         }
 
         // POST: api/Produtos
@@ -78,26 +65,85 @@ namespace ApiCatalogoProdutos.Controllers
         [HttpPost]
         public async Task<ActionResult<Produto>> PostProduto(Produto produto)
         {
-            _context.Produtos.Add(produto);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Produtos.Add(produto);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProduto", new { id = produto.ProdutoId }, produto);
+                return CreatedAtAction("GetProduto", new { id = produto.ProdutoId }, produto);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Erro ao tentar criar um novo produto");
+            }
+            
+        }
+
+        // PUT: api/Produtos/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutProduto(int id, Produto produto)
+        {
+            try
+            {
+                if (id != produto.ProdutoId)
+                {
+                    return BadRequest($"Não foi possível atualizar o produto com o id={id}");
+                }
+
+                _context.Entry(produto).State = EntityState.Modified;
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    return Ok($"Produto com id{id} foi atualizada com sucesso");
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ProdutoExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Erro ao tentar atualizar o produto com id={id}");
+            }
+            
         }
 
         // DELETE: api/Produtos/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduto(int id)
         {
-            var produto = await _context.Produtos.FindAsync(id);
-            if (produto == null)
+            try
             {
-                return NotFound();
+                var produto = await _context.Produtos.FindAsync(id);
+                if (produto == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Produtos.Remove(produto);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            _context.Produtos.Remove(produto);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Erro ao excluir a categoria com id={id}");
+            }
+            
         }
 
         private bool ProdutoExists(int id)

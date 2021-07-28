@@ -31,7 +31,8 @@ namespace ApiCatalogoProdutos
             string mySqlConnection = Configuration.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<AppDbContext>(options => 
-                options.UseMySql(mySqlConnection,ServerVersion.AutoDetect(mySqlConnection)));
+                options.UseMySql(mySqlConnection,
+                ServerVersion.AutoDetect(mySqlConnection)));
 
             services.AddControllers()
                 .AddNewtonsoftJson(options =>
