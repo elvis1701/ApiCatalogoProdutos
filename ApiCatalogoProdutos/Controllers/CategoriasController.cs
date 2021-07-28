@@ -21,9 +21,11 @@ namespace ApiCatalogoProdutos.Controllers
             _context = context;
         }
 
+        // GET: api/Categorias/produtos
         [HttpGet("produtos")]
         public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriasProdutos()
         {
+            
             return await _context.Categorias.Include(x=> x.Produtos).ToListAsync();
         }
 
@@ -31,21 +33,40 @@ namespace ApiCatalogoProdutos.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Categoria>>> GetCategorias()
         {
-            return await _context.Categorias.ToListAsync();
+            try
+            {
+                return await _context.Categorias.ToListAsync();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Erro ao tentar obter as categorias do banco de dados");
+            }
+            
         }
 
         // GET: api/Categorias/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Categoria>> GetCategoria(int id)
         {
-            var categoria = await _context.Categorias.FindAsync(id);
-
-            if (categoria == null)
+            try
             {
-                return NotFound();
-            }
+                var categoria = await _context.Categorias.FindAsync(id);
 
-            return categoria;
+                if (categoria == null)
+                {
+                    return NotFound($"A categoria com id={id} não foi encontrada");
+                }
+
+                return categoria;
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Erro ao tentar obter as categorias do banco de dados");
+            }
+            
         }
 
         // PUT: api/Categorias/5
